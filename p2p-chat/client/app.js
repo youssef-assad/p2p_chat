@@ -1,6 +1,16 @@
+import sodium from "https://esm.sh/libsodium-wrappers@0.7.15";
+
+
+
 const ws = new WebSocket("ws://localhost:8080");
 let pc; // the peer connection
 let channel; // the data channel
+let keys;      // my key pair
+let theirKey;  // the other tab's public key
+
+sodium.ready.then(() => {
+  keys = sodium.crypto_box_keypair();
+});
 
 function log(t) {
   document.getElementById("log").textContent += t + "\n";
@@ -34,9 +44,48 @@ function createPeer() {
   };
 }
 
+function showFingerprint() {
+  // sort the two keys so both tabs hash them in the same order
+  const [a, b] =
+    sodium.compare(keys.publicKey, theirKey) < 0
+      ? [keys.publicKey, theirKey]
+      : [theirKey, keys.publicKey];
+
+  const both = new Uint8Array(64);
+  both.set(a, 0);
+  both.set(b, 32);
+
+  const hash = sodium.crypto_generichash(8, both);
+  const text = sodium.to_hex(hash).match(/.{4}/g).join("-");
+  document.getElementById("fp").textContent = text;
+}
 function setupChannel() {
-  channel.onopen = () => log("channel open, you can chat");
-  channel.onmessage = (e) => log("peer: " + e.data);
+  channel.onopen = () => {
+    log("channel open, sending my public key");
+    channel.send(JSON.stringify({ type: "key", key: sodium.to_hex(keys.publicKey) }));
+  };
+
+  channel.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+
+    if (msg.type === "key") {
+      theirKey = sodium.from_hex(msg.key);
+      showFingerprint();
+      log("key received, chat is now encrypted");
+    } else if (msg.type === "msg") {
+      try {
+        const plain = sodium.crypto_box_open_easy(
+          sodium.from_hex(msg.c),
+          sodium.from_hex(msg.n),
+          theirKey,
+          keys.privateKey
+        );
+        log("peer: " + sodium.to_string(plain));
+      } catch {
+        log("DECRYPTION FAILED (message was tampered with)");
+      }
+    }
+  };
 }
 
 async function handleSignal(msg) {
@@ -74,7 +123,21 @@ document.getElementById("joinBtn").onclick = () => {
 };
 
 document.getElementById("sendBtn").onclick = () => {
+  if (!theirKey) return log("no key yet, wait");
   const text = document.getElementById("text").value;
-  channel.send(text);
-  log("me: " + text);
+
+  const nonce = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
+  const cipher = sodium.crypto_box_easy(text, nonce, theirKey, keys.privateKey);
+
+  channel.send(JSON.stringify({ type: "msg", n: sodium.to_hex(nonce), c: sodium.to_hex(cipher) }));
+  log("me: " + text + "   [sent as " + sodium.to_hex(cipher).slice(0, 24) + "...]");
 };
+
+
+window.sodium = sodium;
+window.dbg = { get keys() { return keys; }, get theirKey() { return theirKey; }, get channel() { return channel; } };
+// Then in the console, use dbg.theirKey, dbg.keys.privateKey and dbg.channel instead of the bare names:
+const n = sodium.randombytes_buf(24);
+const c = sodium.crypto_box_easy("hi", n, dbg.theirKey, dbg.keys.privateKey);
+c[0] ^= 1;
+dbg.channel.send(JSON.stringify({ type: "msg", n: sodium.to_hex(n), c: sodium.to_hex(c) }));
