@@ -1,0 +1,225 @@
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --text: #1b2230;
+  --muted: #6b7486;
+  --border: #e1e5ee;
+  --accent: #3b6cf6;
+  --accent-text: #ffffff;
+  --mine: #3b6cf6;
+  --mine-text: #ffffff;
+  --theirs: #eceff6;
+  --ok: #1f9d55;
+  --warn: #d98a00;
+  --bad: #d64545;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #10131a;
+    --surface: #181c26;
+    --text: #e8ecf5;
+    --muted: #8f99ad;
+    --border: #272d3b;
+    --theirs: #232a38;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.45;
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.hidden { display: none !important; }
+.muted { color: var(--muted); font-size: 0.85rem; margin: 0; }
+
+/* header */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo { font-size: 1.6rem; }
+h1 { margin: 0; font-size: 1.15rem; }
+h2 { margin: 0 0 4px; font-size: 1.05rem; }
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #fff;
+}
+.badge-off { background: var(--muted); }
+.badge-wait { background: var(--warn); }
+.badge-ok { background: var(--ok); }
+.badge-bad { background: var(--bad); }
+
+/* cards and forms */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.row { display: flex; gap: 8px; margin-top: 12px; }
+
+input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  font-size: 16px; /* 16px stops iOS from zooming on focus */
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+}
+input:focus { border-color: var(--accent); }
+input:disabled { opacity: 0.6; }
+
+button {
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-text);
+  background: var(--accent);
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* chat */
+.chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.fp-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.fp-bar code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ok);
+}
+.hint { margin: 0; font-size: 0.78rem; color: var(--muted); }
+
+.messages {
+  flex: 1;
+  min-height: 240px;
+  max-height: calc(100dvh - 330px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.msg {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 14px;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+.msg.me {
+  align-self: flex-end;
+  background: var(--mine);
+  color: var(--mine-text);
+  border-bottom-right-radius: 4px;
+}
+.msg.peer {
+  align-self: flex-start;
+  background: var(--theirs);
+  border-bottom-left-radius: 4px;
+}
+.msg.system {
+  align-self: center;
+  max-width: 100%;
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: transparent;
+  text-align: center;
+}
+
+.composer {
+  display: flex;
+  gap: 8px;
+  position: sticky;
+  bottom: 0;
+  padding: 8px 0 4px;
+  background: var(--bg);
+}
+.attach {
+  display: grid;
+  place-items: center;
+  padding: 0 14px;
+  font-size: 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+/* technical log */
+.tech {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.tech summary { cursor: pointer; padding: 4px 0; }
+.tech pre {
+  margin: 6px 0 0;
+  padding: 10px;
+  max-height: 180px;
+  overflow: auto;
+  font-size: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* desktop */
+@media (min-width: 720px) {
+  .app { padding: 28px 16px; }
+  .messages { max-height: 55vh; }
+}
+a.msg { color: inherit; text-decoration: underline; }

@@ -1,19 +1,73 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>P2P Chat</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <p>Fingerprint: <span id="fp">-</span></p>
-    <h1>P2P Chat</h1>
-    <input id="room" placeholder="room name" value="test" />
-    <button id="joinBtn">Join</button>
-    <br /><br />
-    <input id="text" placeholder="message" />
-    <button id="sendBtn">Send</button>
-    <p>Fingerprint: <span id="fp">-</span></p>
-    <pre id="log"></pre>
-   <script type="module" src="app.js"></script>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="logo">🔒</span>
+          <div>
+            <h1>P2P Chat</h1>
+            <p id="roomLabel" class="muted">Not in a room</p>
+          </div>
+        </div>
+        <span id="status" class="badge badge-off">Offline</span>
+      </header>
+
+      <section id="joinCard" class="card">
+        <h2>Join a room</h2>
+        <p class="muted">
+          Open this page in a second tab or device and join the same room name.
+        </p>
+        <form id="joinForm" class="row">
+          <input
+            id="room"
+            placeholder="room name"
+            value="test"
+            autocomplete="off"
+          />
+          <button id="joinBtn" type="submit">Join</button>
+        </form>
+      </section>
+
+      <section id="chat" class="chat hidden">
+        <div class="fp-bar">
+          <span class="muted">Security code</span>
+          <code id="fp">waiting for key…</code>
+        </div>
+        <p class="hint">
+          Compare this code with your peer (call or in person). If it matches,
+          nobody is in the middle.
+        </p>
+
+        <div id="messages" class="messages" aria-live="polite"></div>
+
+        <form id="composer" class="composer">
+          <label class="attach" title="Send a file"
+            >📎
+            <input id="fileInput" type="file" hidden />
+          </label>
+          <input
+            id="text"
+            placeholder="Waiting for secure connection…"
+            autocomplete="off"
+            disabled
+          />
+          <button id="sendBtn" type="submit" disabled>Send</button>
+        </form>
+      </section>
+
+      <details class="tech">
+        <summary>Technical log</summary>
+        <pre id="log"></pre>
+      </details>
+    </div>
+
+    <script type="module" src="app.js"></script>
   </body>
 </html>
